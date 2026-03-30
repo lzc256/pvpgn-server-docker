@@ -79,7 +79,7 @@ jobs:
           BRANCH=${{ env.BRANCH }}
           MODE=${{ matrix.mode }}
         push: ${{ github.event_name != 'pull_request' }}
-        platforms: linux/amd64,linux/arm64 # 删除了 v7 以提高私有仓库构建速度
+        platforms: linux/amd64 # 删除了 v7 以提高私有仓库构建速度
         labels: ${{ steps.meta.outputs.labels }}
         cache-to: type=local,mode=max,dest=${{ runner.temp }}/.buildx-cache
         cache-from: type=local,src=${{ runner.temp }}/.buildx-cache
