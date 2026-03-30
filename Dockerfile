@@ -1,4 +1,4 @@
-ARG MODE=mysql
+ARG MODE=sqlite3
 FROM alpine:latest AS build-base
 
 ### Install build dependencies
@@ -15,8 +15,8 @@ RUN apk --quiet --no-cache add \
   ;
 
 ### CMake & make
-ARG REPO=https://github.com/pvpgn/pvpgn-server.git
-ARG BRANCH=master
+ARG REPO=https://github.com/chronodivide/pvpgn-server.git
+ARG BRANCH=chronodivide
 RUN git clone --depth 1 --single-branch --branch ${BRANCH} ${REPO} /src
 
 RUN mkdir /src/build /usr/local/pvpgn
@@ -41,42 +41,6 @@ RUN cmake -G "Unix Makefiles" -H./ -B./build \
   ../ && cd build && make
 
 ################################################################################
-FROM build-base AS build-mysql
-
-RUN apk --quiet --no-cache add \
-  mariadb-dev \
-  && rm -rf /var/cache/apk/* \
-  ;
-
-ENV WITH_MYSQL=true
-
-RUN cmake -G "Unix Makefiles" -H./ -B./build \
-  -D WITH_LUA=${WITH_LUA} \
-  -D WITH_MYSQL=${WITH_MYSQL} \
-  -D WITH_SQLITE3=${WITH_SQLITE3} \
-  -D WITH_PGSQL=${WITH_PGSQL} \
-  -D WITH_ODBC=${WITH_ODBC} \
-  -D CMAKE_INSTALL_PREFIX=/ \
-  ../ && cd build && make
-
-################################################################################
-FROM build-base AS build-pgsql
-
-RUN apk --quiet --no-cache add \
-  libpq-dev \
-  && rm -rf /var/cache/apk/* \
-  ;
-
-ENV WITH_PGSQL=true
-
-RUN cmake -G "Unix Makefiles" -H./ -B./build \
-  -D WITH_LUA=${WITH_LUA} \
-  -D WITH_MYSQL=${WITH_MYSQL} \
-  -D WITH_SQLITE3=${WITH_SQLITE3} \
-  -D WITH_PGSQL=${WITH_PGSQL} \
-  -D WITH_ODBC=${WITH_ODBC} \
-  -D CMAKE_INSTALL_PREFIX=/ \
-  ../ && cd build && make
 
 ################################################################################
 FROM build-base AS build-sqlite3
@@ -98,23 +62,6 @@ RUN cmake -G "Unix Makefiles" -H./ -B./build \
   ../ && cd build && make
 
 ################################################################################
-FROM build-base AS build-odbc
-
-RUN apk --quiet --no-cache add \
-  unixodbc-dev \
-  && rm -rf /var/cache/apk/* \
-  ;
-
-ENV WITH_ODBC=true
-
-RUN cmake -G "Unix Makefiles" -H./ -B./build \
-  -D WITH_LUA=${WITH_LUA} \
-  -D WITH_MYSQL=${WITH_MYSQL} \
-  -D WITH_SQLITE3=${WITH_SQLITE3} \
-  -D WITH_PGSQL=${WITH_PGSQL} \
-  -D WITH_ODBC=${WITH_ODBC} \
-  -D CMAKE_INSTALL_PREFIX=/ \
-  ../ && cd build && make
 
 ################################################################################
 FROM build-${MODE} AS build
@@ -137,22 +84,7 @@ RUN apk --quiet --no-cache add \
   ;
 
 ################################################################################
-FROM runner-plain AS runner-mysql
 
-### Install dependencies
-RUN apk --quiet --no-cache add \
-  mariadb-connector-c \
-  && rm -rf /var/cache/apk/* \
-  ;
-
-################################################################################
-FROM runner-plain AS runner-pgsql
-
-### Install dependencies
-RUN apk --quiet --no-cache add \
-  libpq \
-  && rm -rf /var/cache/apk/* \
-  ;
 
 ################################################################################
 FROM runner-plain AS runner-sqlite3
@@ -164,13 +96,6 @@ RUN apk --quiet --no-cache add \
   ;
 
 ################################################################################
-FROM runner-plain AS runner-odbc
-
-## Install dependencies
-RUN apk --quiet --no-cache add \
-  unixodbc \
-  && rm -rf /var/cache/apk/* \
-  ;
 
 ################################################################################
 FROM runner-${MODE} AS runner
