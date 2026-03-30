@@ -38,6 +38,7 @@ RUN cmake -G "Unix Makefiles" -H./ -B./build \
   -D WITH_PGSQL=${WITH_PGSQL} \
   -D WITH_ODBC=${WITH_ODBC} \
   -D CMAKE_INSTALL_PREFIX=/ \
+  -D CMAKE_POLICY_VERSION_MINIMUM=3.5 \
   ../ && cd build && make
 
 ################################################################################
@@ -59,6 +60,7 @@ RUN cmake -G "Unix Makefiles" -H./ -B./build \
   -D WITH_PGSQL=${WITH_PGSQL} \
   -D WITH_ODBC=${WITH_ODBC} \
   -D CMAKE_INSTALL_PREFIX=/ \
+  -D CMAKE_POLICY_VERSION_MINIMUM=3.5 \
   ../ && cd build && make
 
 ################################################################################
