@@ -21,7 +21,7 @@ on:
   workflow_dispatch:
 
 env:
-  BRANCH: 1.99.7.2.1
+  BRANCH: chronodivide
   REGISTRY: ghcr.io
 
 jobs:
